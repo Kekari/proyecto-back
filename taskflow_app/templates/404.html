@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    <title>404 - Página No Encontrada | TaskFlow</title>
+{% endblock %}
+
+{% block contenido %}
+<section class="error-page">
+    <div class="error-container">
+        <div class="error-icon">📋</div>
+        <div class="error-code">404</div>
+        <h1>Página no encontrada</h1>
+        <p>
+            Lo sentimos, el recurso, tablero o tarea que buscas no existe o ha sido movido a otra ubicación en TaskFlow.
+        </p>
+        <div class="error-actions">
+            <a href="{% url 'inicio' %}" class="btn btn-primary">
+                🏠 Volver al Inicio
+            </a>
+            <a href="{% url 'tableros' %}" class="btn btn-secondary">
+                📋 Ver Tableros
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .error-page {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        background: radial-gradient(circle at 50% 30%, #e0f2fe 0%, transparent 60%), #f8fafc;
+        min-height: calc(100vh - 150px);
+    }
+
+    .error-container {
+        max-width: 600px;
+        text-align: center;
+        background: white;
+        padding: 50px 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+
+    .error-icon {
+        font-size: 4rem;
+        margin-bottom: 10px;
+    }
+
+    .error-code {
+        font-size: 6.5rem;
+        font-weight: 900;
+        line-height: 1;
+        color: #0284c7;
+        margin-bottom: 15px;
+        letter-spacing: -2px;
+    }
+
+    .error-container h1 {
+        font-size: 1.9rem;
+        color: #0f172a;
+        margin-bottom: 15px;
+    }
+
+    .error-container p {
+        color: #64748b;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        margin-bottom: 30px;
+    }
+
+    .error-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}

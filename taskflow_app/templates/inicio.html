@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    <title>TaskFlow | Bienvenido a tu Gestor de Tareas Kanban</title>
+{% endblock %}
+
+{% block contenido %}
+<style>
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0369a1 100%);
+        color: white;
+        padding: 80px 8% 90px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        padding: 6px 16px;
+        border-radius: 9999px;
+        font-size: 0.9rem;
+        margin-bottom: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 20px;
+        letter-spacing: -1px;
+    }
+
+    .hero-title span {
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: #cbd5e1;
+        max-width: 720px;
+        margin: 0 auto 35px;
+        line-height: 1.6;
+        font-weight: 400;
+    }
+
+    .hero-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+    }
+
+    /* Stats Grid */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+        max-width: 900px;
+        margin: 0 auto;
+        padding-top: 30px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #38bdf8;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+    }
+
+    /* Features Section */
+    .features-section {
+        padding: 70px 8%;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .section-header h2 {
+        font-size: 2.2rem;
+        color: #0f172a;
+        margin-bottom: 12px;
+    }
+
+    .section-header p {
+        color: #64748b;
+        font-size: 1.05rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 30px;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(2, 132, 199, 0.1);
+        border-color: #bae6fd;
+    }
+
+    .feature-icon-wrapper {
+        width: 55px;
+        height: 55px;
+        border-radius: 12px;
+        background: #e0f2fe;
+        color: #0284c7;
+        font-size: 1.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+        font-size: 1.25rem;
+        color: #0f172a;
+        margin-bottom: 10px;
+    }
+
+    .feature-card p {
+        color: #64748b;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    /* Live Preview Kanban Section */
+    .preview-section {
+        background: #f1f5f9;
+        padding: 60px 8%;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .preview-board {
+        background: #0284c7;
+        border-radius: 16px;
+        padding: 24px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .preview-board-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .board-columns {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+
+    .board-column {
+        background: #ebecf0;
+        border-radius: 10px;
+        padding: 14px;
+        color: #172b4d;
+    }
+
+    .column-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #334155;
+    }
+
+    .preview-card {
+        background: white;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        font-size: 0.9rem;
+    }
+
+    .tag {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+    }
+
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .tag-purple { background: #ede9fe; color: #5b21b6; }
+    .tag-green { background: #dcfce7; color: #166534; }
+    .tag-red { background: #fee2e2; color: #991b1b; }
+
+    @media (max-width: 768px) {
+        .hero-title { font-size: 2.4rem; }
+        .hero-subtitle { font-size: 1.05rem; }
+    }
+</style>
+
+<!-- Hero -->
+<section class="hero-section">
+    <div class="hero-badge">
+        🚀 Plataforma Ágil de Productividad tipo Trello
+    </div>
+
+    <h1 class="hero-title">
+        Organiza, Planifica y Fluye con <span>TaskFlow</span>
+    </h1>
+
+    <p class="hero-subtitle">
+        Gestiona tus tareas, proyectos y flujos de trabajo con tableros Kanban interactivos.
+        Todo el poder del backend en Django con arquitectura Modelo-Vista-Plantilla y base de datos desacoplada.
+    </p>
+
+    <div class="hero-buttons">
+        <a href="{% url 'tableros' %}" class="btn btn-primary">
+            🚀 Ver Tableros Activos
+        </a>
+        <a href="/admin/" target="_blank" class="btn btn-secondary">
+            ⚙️ Panel Administrador Django
+        </a>
+    </div>
+
+    <!-- Estadísticas en tiempo real -->
+    <div class="stats-container">
+        <div class="stat-item">
+            <div class="stat-number">{{ total_tableros|default:"3" }}</div>
+            <div class="stat-label">Tableros Creados</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ total_listas|default:"12" }}</div>
+            <div class="stat-label">Listas de Estados</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ total_tarjetas|default:"28" }}</div>
+            <div class="stat-label">Tarjetas y Tareas</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">{{ total_usuarios|default:"6" }}</div>
+            <div class="stat-label">Colaboradores</div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid -->
+<section class="features-section">
+    <div class="section-header">
+        <h2>Características Principales de TaskFlow</h2>
+        <p>Una arquitectura diseñada siguiendo los más altos estándares de desarrollo en Django.</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">📋</div>
+            <h3>Tableros Kanban</h3>
+            <p>Crea tableros personalizados por proyecto, organiza por espacios de trabajo y define la visibilidad de tu equipo.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">📑</div>
+            <h3>Listas y Columnas</h3>
+            <p>Estructura tus flujos de trabajo en fases: "Por Hacer", "En Progreso", "En Revisión" y "Completado".</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">🎯</div>
+            <h3>Tarjetas Inteligentes</h3>
+            <p>Asigna responsables, prioridades, fechas límite de entrega, subtareas verificables y estimaciones de tiempo.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">🏷️</div>
+            <h3>Etiquetas y Prioridades</h3>
+            <p>Filtra y clasifica el trabajo visualmente con códigos de color para bugs, frontend, backend, diseño y despliegues.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">💬</div>
+            <h3>Comentarios y Actividad</h3>
+            <p>Comunícate con tu equipo directamente en cada tarjeta y mantén una auditoría cronológica de cada cambio.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrapper">🛡️</div>
+            <h3>Backend Seguro y Desacoplado</h3>
+            <p>Configuración modular con <code>python-decouple</code>, compatibilidad MySQL/SQLite y robusto Django Admin.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Kanban Demo Interactive Preview -->
+<section class="preview-section">
+    <div class="preview-board">
+        <div class="preview-board-header">
+            <div>
+                <h3 style="font-size: 1.4rem; font-weight: 700;">🚀 Sprint 1: Lanzamiento TaskFlow</h3>
+                <p style="font-size: 0.85rem; opacity: 0.9;">Espacio de Trabajo: Desarrollo de Software</p>
+            </div>
+            <div>
+                <a href="{% url 'tableros' %}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px;">
+                    Abrir Tablero Completo &rarr;
+                </a>
+            </div>
+        </div>
+
+        <div class="board-columns">
+            <!-- Columna 1 -->
+            <div class="board-column">
+                <div class="column-title">
+                    <span>📌 Por Hacer</span>
+                    <span style="font-size: 0.75rem; background: #cbd5e1; padding: 2px 6px; border-radius: 10px;">2</span>
+                </div>
+                <div class="preview-card">
+                    <span class="tag tag-blue">Frontend</span>
+                    <div style="font-weight: 600; margin-bottom: 4px;">Diseñar vistas del Tablero</div>
+                    <div style="font-size: 0.78rem; color: #64748b;">📅 Vence en 3 días • 👤 Kekari</div>
+                </div>
+                <div class="preview-card">
+                    <span class="tag tag-purple">DevOps</span>
+                    <div style="font-weight: 600; margin-bottom: 4px;">Configurar CI/CD pipeline</div>
+                    <div style="font-size: 0.78rem; color: #64748b;">📅 Vence en 5 días</div>
+                </div>
+            </div>
+
+            <!-- Columna 2 -->
+            <div class="board-column">
+                <div class="column-title">
+                    <span>⚡ En Progreso</span>
+                    <span style="font-size: 0.75rem; background: #cbd5e1; padding: 2px 6px; border-radius: 10px;">1</span>
+                </div>
+                <div class="preview-card">
+                    <span class="tag tag-red">Alta Prioridad</span>
+                    <div style="font-weight: 600; margin-bottom: 4px;">Modelos de Datos y Migraciones</div>
+                    <div style="font-size: 0.78rem; color: #64748b;">✓ 15/15 migraciones • 👤 Backend Team</div>
+                </div>
+            </div>
+
+            <!-- Columna 3 -->
+            <div class="board-column">
+                <div class="column-title">
+                    <span>👀 En Revisión</span>
+                    <span style="font-size: 0.75rem; background: #cbd5e1; padding: 2px 6px; border-radius: 10px;">1</span>
+                </div>
+                <div class="preview-card">
+                    <span class="tag tag-blue">Seguridad</span>
+                    <div style="font-weight: 600; margin-bottom: 4px;">Variables en .env con decouple</div>
+                    <div style="font-size: 0.78rem; color: #64748b;">✓ Verificado</div>
+                </div>
+            </div>
+
+            <!-- Columna 4 -->
+            <div class="board-column">
+                <div class="column-title">
+                    <span>✅ Finalizado</span>
+                    <span style="font-size: 0.75rem; background: #cbd5e1; padding: 2px 6px; border-radius: 10px;">2</span>
+                </div>
+                <div class="preview-card" style="opacity: 0.85;">
+                    <span class="tag tag-green">Listo</span>
+                    <div style="font-weight: 600; margin-bottom: 4px; text-decoration: line-through;">Crear entorno virtual venv</div>
+                    <div style="font-size: 0.78rem; color: #166534;">Completado</div>
+                </div>
+                <div class="preview-card" style="opacity: 0.85;">
+                    <span class="tag tag-green">Listo</span>
+                    <div style="font-weight: 600; margin-bottom: 4px; text-decoration: line-through;">Instalar dependencias Django</div>
+                    <div style="font-size: 0.78rem; color: #166534;">Completado</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

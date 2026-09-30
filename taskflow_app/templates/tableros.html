@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    <title>Mis Tableros | TaskFlow</title>
+{% endblock %}
+
+{% block contenido %}
+<style>
+    .boards-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 4%;
+        width: 100%;
+    }
+
+    .boards-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .boards-header h1 {
+        font-size: 2rem;
+        color: #0f172a;
+    }
+
+    .workspace-section {
+        margin-bottom: 40px;
+    }
+
+    .workspace-title {
+        font-size: 1.25rem;
+        color: #475569;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+    }
+
+    .boards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .board-card {
+        border-radius: 12px;
+        padding: 20px;
+        color: white;
+        text-decoration: none;
+        height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .board-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .board-card-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .board-card-meta {
+        font-size: 0.8rem;
+        opacity: 0.9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .board-card-badge {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .create-board-card {
+        border: 2px dashed #cbd5e1;
+        background: white;
+        color: #64748b;
+        height: 140px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .create-board-card:hover {
+        border-color: #0284c7;
+        color: #0284c7;
+        background: #f0f9ff;
+    }
+</style>
+
+<div class="boards-container">
+    <div class="boards-header">
+        <div>
+            <h1>📋 Espacios de Trabajo y Tableros</h1>
+            <p style="color: #64748b; margin-top: 4px;">Selecciona un tablero para gestionar tus listas y tareas en formato Kanban.</p>
+        </div>
+        <a href="/admin/taskflow_app/tablero/add/" target="_blank" class="btn btn-primary">
+            + Nuevo Tablero
+        </a>
+    </div>
+
+    {% for espacio in espacios %}
+    <div class="workspace-section">
+        <div class="workspace-title">
+            <span>🏢</span> {{ espacio.nombre }}
+            <span style="font-size: 0.85rem; font-weight: normal; color: #94a3b8;">({{ espacio.tableros.count }} tableros)</span>
+        </div>
+
+        <div class="boards-grid">
+            {% for tablero in espacio.tableros.all %}
+                {% if tablero.habilitado %}
+                <a href="{% url 'detalle_tablero' tablero.id %}" class="board-card" style="background: {{ tablero.color_fondo }};">
+                    <div class="board-card-title">
+                        <span>{{ tablero.icono }}</span> {{ tablero.nombre }}
+                    </div>
+                    <div class="board-card-meta">
+                        <span>{{ tablero.listas.count }} columnas</span>
+                        <span class="board-card-badge">{{ tablero.visibilidad.nombre }}</span>
+                    </div>
+                </a>
+                {% endif %}
+            {% empty %}
+                <p style="color: #94a3b8; font-style: italic;">No hay tableros en este espacio aún.</p>
+            {% endfor %}
+
+            <a href="/admin/taskflow_app/tablero/add/" target="_blank" class="create-board-card">
+                <span style="font-size: 1.5rem;">+</span>
+                <span>Crear nuevo tablero</span>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 16px; border: 1px solid #e2e8f0;">
+        <div style="font-size: 3rem; margin-bottom: 15px;">📋</div>
+        <h2>Aún no hay tableros creados</h2>
+        <p style="color: #64748b; margin: 10px 0 25px;">Puedes poblar datos de prueba o crear un tablero desde el administrador de Django.</p>
+        <a href="/admin/taskflow_app/tablero/add/" target="_blank" class="btn btn-primary">+ Crear Tablero en Admin</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

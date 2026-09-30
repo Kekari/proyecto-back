@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    <title>{{ tablero.nombre }} | TaskFlow Kanban</title>
+{% endblock %}
+
+{% block contenido %}
+<style>
+    .kanban-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 65px);
+        background: {{ tablero.color_fondo }};
+        overflow: hidden;
+    }
+
+    /* Subheader del Tablero */
+    .kanban-header {
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(10px);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: white;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .board-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .board-info h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .board-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+    }
+
+    .board-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Columnas Kanban */
+    .kanban-columns {
+        flex: 1;
+        display: flex;
+        gap: 18px;
+        padding: 20px 24px;
+        overflow-x: auto;
+        align-items: flex-start;
+    }
+
+    .kanban-column {
+        background: #ebecf0;
+        width: 300px;
+        min-width: 300px;
+        max-height: calc(100vh - 160px);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .column-header {
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #1e293b;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .column-count {
+        background: #cbd5e1;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        color: #334155;
+    }
+
+    .column-cards {
+        padding: 10px 12px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+    }
+
+    /* Tarjeta Kanban */
+    .kanban-card {
+        background: white;
+        border-radius: 8px;
+        padding: 14px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e8f0;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .kanban-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .card-tag {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: white;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .card-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        color: #64748b;
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .priority-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: white;
+    }
+
+    .user-avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    /* Acciones de Tarjeta */
+    .card-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .btn-move {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        padding: 3px 8px;
+        font-size: 0.72rem;
+        cursor: pointer;
+        color: #475569;
+    }
+
+    .btn-move:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+
+    /* Formulario para agregar tarjeta rapida */
+    .add-card-box {
+        padding: 10px 12px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .quick-input {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid #cbd5e1;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+
+    .quick-input:focus {
+        outline: none;
+        border-color: #0284c7;
+    }
+</style>
+
+<div class="kanban-wrapper">
+    <!-- Header del Tablero -->
+    <div class="kanban-header">
+        <div class="board-info">
+            <a href="{% url 'tableros' %}" style="color: white; text-decoration: none; font-size: 1.1rem;">&larr; Volver</a>
+            <span>|</span>
+            <h1>{{ tablero.icono }} {{ tablero.nombre }}</h1>
+            <span class="board-badge">{{ tablero.visibilidad.nombre }}</span>
+            <span class="board-badge">🏢 {{ tablero.espacio.nombre }}</span>
+        </div>
+
+        <div class="board-actions">
+            <a href="/admin/taskflow_app/lista/add/?tablero={{ tablero.id }}" target="_blank" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;">
+                + Nueva Columna
+            </a>
+            <a href="/admin/taskflow_app/tablero/{{ tablero.id }}/change/" target="_blank" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;">
+                ⚙️ Ajustes en Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- Columnas del Tablero -->
+    <div class="kanban-columns">
+        {% for lista in tablero.listas.all %}
+            {% if lista.habilitado %}
+            <div class="kanban-column">
+                <div class="column-header">
+                    <span>{{ lista.nombre }}</span>
+                    <span class="column-count">{{ lista.tarjetas.count }}</span>
+                </div>
+
+                <div class="column-cards">
+                    {% for tarjeta in lista.tarjetas.all %}
+                        {% if tarjeta.habilitado %}
+                        <div class="kanban-card">
+                            <!-- Etiquetas -->
+                            {% if tarjeta.asignaciones_etiquetas.all %}
+                            <div class="card-tags">
+                                {% for te in tarjeta.asignaciones_etiquetas.all %}
+                                <span class="card-tag" style="background-color: {{ te.etiqueta.color }};">
+                                    {{ te.etiqueta.nombre }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Titulo de la Tarjeta -->
+                            <div class="card-title">
+                                {% if tarjeta.completada %}<s>{% endif %}
+                                {{ tarjeta.titulo }}
+                                {% if tarjeta.completada %}</s> ✓{% endif %}
+                            </div>
+
+                            {% if tarjeta.descripcion %}
+                            <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 6px;">
+                                {{ tarjeta.descripcion|truncatechars:70 }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Metadatos de la Tarjeta -->
+                            <div class="card-meta">
+                                <div>
+                                    {% if tarjeta.prioridad %}
+                                    <span class="priority-badge" style="background-color: {{ tarjeta.prioridad.color }};">
+                                        {{ tarjeta.prioridad.nombre }}
+                                    </span>
+                                    {% endif %}
+
+                                    {% if tarjeta.fecha_limite %}
+                                    <span style="margin-left: 6px;">📅 {{ tarjeta.fecha_limite|date:"d M" }}</span>
+                                    {% endif %}
+                                </div>
+
+                                {% if tarjeta.asignado_a %}
+                                <div class="user-avatar" style="background-color: {{ tarjeta.asignado_a.color_avatar }};" title="{{ tarjeta.asignado_a.nombre }}">
+                                    {{ tarjeta.asignado_a.nombre|slice:":1"|upper }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Acciones: Mover a otra columna -->
+                            <form action="{% url 'mover_tarjeta' tarjeta.id %}" method="POST" class="card-actions">
+                                {% csrf_token %}
+                                <select name="nueva_lista_id" class="btn-move" onchange="this.form.submit()">
+                                    <option value="" disabled selected>Mover a...</option>
+                                    {% for col in tablero.listas.all %}
+                                        {% if col.id != lista.id %}
+                                        <option value="{{ col.id }}">{{ col.nombre }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                        {% endif %}
+                    {% empty %}
+                        <div style="text-align: center; padding: 20px 10px; color: #94a3b8; font-size: 0.85rem; font-style: italic;">
+                            Sin tarjetas
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Formulario rapido para agregar tarjeta -->
+                <div class="add-card-box">
+                    <form action="{% url 'crear_tarjeta' lista.id %}" method="POST">
+                        {% csrf_token %}
+                        <input type="text" name="titulo" class="quick-input" placeholder="+ Añadir una tarjeta..." required>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 6px; font-size: 0.8rem;">
+                            Guardar Tarjeta
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        {% empty %}
+            <div style="background: white; border-radius: 12px; padding: 30px; text-align: center; max-width: 400px; margin: 40px auto;">
+                <h3>Tablero sin columnas</h3>
+                <p style="color: #64748b; margin: 10px 0 20px;">Crea las listas (e.g. Por Hacer, En Progreso, Hecho) para empezar a organizar tus tarjetas.</p>
+                <a href="/admin/taskflow_app/lista/add/?tablero={{ tablero.id }}" target="_blank" class="btn btn-primary">
+                    + Añadir Primera Columna
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
